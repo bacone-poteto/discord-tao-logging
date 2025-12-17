@@ -1,17 +1,31 @@
+# ----------------------------------------------------
+# ⚠️ Render/本番環境向け修正 ⚠️
+# Colabの 'google.colab' から標準の 'os.getenv' に戻します。
+# ----------------------------------------------------
+
 import discord
 import os
 import json
 import requests
+# Colabで使用した from google.colab import userdata は削除またはコメントアウト
+from dotenv import load_dotenv # .envファイル（ローカルテスト用）の読み込みに必要
+
 import aiohttp
 import asyncio
-# from dotenv import load_dotenv は Colabでは不要なため削除
+# import nest_asyncio は Renderでは不要なので削除 (Colabのループ競合回避用だったため)
 
-# --- 1. 環境変数の読み込み (ColabのSecret機能を使用) ---
-# Colabの「🔑 秘密鍵」パネルに設定された情報を安全に読み込みます。
-from google.colab import userdata
+# --- 1. 環境変数の読み込み (Renderの環境変数設定を使用) ---
+# load_dotenv() # Renderは環境変数を直接読み込むため、これも不要だが残していても問題なし
+TOKEN = os.getenv('DISCORD_BOT_TOKEN') # ★★★ 修正箇所 ★★★
+GAS_URL = os.getenv('GAS_WEBHOOK_URL') # ★★★ 修正箇所 ★★★
 
-TOKEN = userdata.get('DISCORD_BOT_TOKEN')
-GAS_URL = userdata.get('GAS_WEBHOOK_URL')
+# ... (中略：Botの定義、on_ready, on_message関数はそのまま) ...
+
+# ----------------------------------------------------
+# ⚠️ Render/本番環境向け修正 ⚠️
+# Colabの nest_asyncio と try/except ブロックはすべて削除
+# ----------------------------------------------------
+
 
 # --- 1.5. トークン設定のチェック ---
 if TOKEN is None or GAS_URL is None:
